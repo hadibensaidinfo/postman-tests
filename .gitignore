@@ -1,0 +1,8 @@
+node_modules/
+reports/*.html
+reports/*.json
+
+*.postman_backup
+
+*.env
+*.secret.json
