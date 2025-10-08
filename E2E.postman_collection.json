@@ -1,0 +1,476 @@
+{
+	"info": {
+		"_postman_id": "6285f6b9-b24b-4ece-a979-e7bf4b4e21d8",
+		"name": "E2E",
+		"description": "🔹 Login  \n\\- POST /login  \n\\- GET /logout  \n🔹 Account  \n\\- GET /account  \n\\- GET /account/{id}  \n🔹 Transactions  \n\\- GET /transactions  \n\\- POST /transfer  \n🔹 Feedback  \n\\- POST /feedback",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "37326118",
+		"_collection_link": "https://hedi-bensaid.postman.co/workspace/DEMO-TEST-FIRE~8e98490b-7957-4116-a08d-937160c5006d/collection/37326118-6285f6b9-b24b-4ece-a979-e7bf4b4e21d8?action=share&source=collection_link&creator=37326118"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Authorization token is present\", function () {\r",
+									"    pm.expect(pm.response.json().Authorization).to.not.be.null;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Login success message is present\", function () {\r",
+									"    pm.expect(pm.response.json().success).to.equal(\"jsmith is now logged in\");\r",
+									"});\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test('Authorization token is present', function () {\r",
+									"    pm.expect(pm.response.json().Authorization).to.not.be.undefined;\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.environment.set(\"authToken\", jsonData.Authorization);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \"username\": \"jsmith\", \"password\": \"demo1234\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/login",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"login"
+							]
+						},
+						"description": "Generated from cURL: curl -X POST \"https://demo.testfire.net/api/login\" -H \"accept: application/json\" -H \"Content-Type: application/json\" -d \"{ \\\"username\\\": \\\"jsmith\\\", \\\"password\\\": \\\"demo1234\\\"}\""
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Check if loggedin is true\", function () {\r",
+									"    pm.expect(pm.response.json().loggedin).to.eql(\"true\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check if response status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Check if response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/api/login",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"login"
+							]
+						},
+						"description": "Generated from cURL: curl -X GET \"https://demo.testfire.net/api/login\" -H \"accept: application/json\" -H \"Authorization: YW5OdGFYUaaaaam86WkdWdGJ6RXlNelE9Oj87P3tSHiw=\""
+					},
+					"response": []
+				}
+			],
+			"description": "Ce dossier contient toutes les requêtes liées à l’authentification des utilisateurs.\n\n### Objectifs :\n\n- Se connecter à l’API et récupérer un `accessToken` ou `authToken`.\n    \n- Gérer la déconnexion et l’expiration des sessions.\n    \n- Vérifier la validité du token avant chaque appel sécurisé.\n    \n\n### Requêtes typiques :\n\n- `POST /api/auth/login`\n    \n- `POST /api/auth/logout`\n    \n- `GET /api/auth/me` (profil utilisateur connecté)"
+		},
+		{
+			"name": "Account Management",
+			"item": [
+				{
+					"name": "Get Accounts",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									"pm.test(\"Response body contains 'Account'\", function () {\r",
+									"    pm.expect(pm.response.text()).to.include('Account');\r",
+									"});\r",
+									"pm.test('Response body contains many Account',function(){\r",
+									"    dataJson = pm.response.json();\r",
+									"    pm.expect(dataJson.Accounts.length).to.be.above(1);\r",
+									"})\r",
+									"pm.test(\"Set Id Account\", function () {\r",
+									"    let jsonData = pm.response.json();\r",
+									"    if (jsonData.Accounts && Array.isArray(jsonData.Accounts)) {\r",
+									"        for (let i = 0; i < jsonData.Accounts.length; i++) {\r",
+									"            pm.environment.set(\"idAccount\" + i, jsonData.Accounts[i].id);\r",
+									"        }\r",
+									"    } else {\r",
+									"        console.log(\"⚠️ Aucun tableau 'Accounts' trouvé dans la réponse.\");\r",
+									"    }\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/api/account",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"account"
+							]
+						},
+						"description": "Generated from cURL: curl -X GET \"https://demo.testfire.net/api/account\" -H \"accept: application/json\" -H \"Authorization: aa\""
+					},
+					"response": []
+				},
+				{
+					"name": "Get Account",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									"pm.test(\"Account ID is correct\", function () {\r",
+									"    pm.expect(pm.response.json().accountId).to.eql(\"800002\");\r",
+									"});\r",
+									"pm.test(\"Credits count is greaterThan 2\", function () {\r",
+									"    pm.expect(pm.response.json().credits.length).to.greaterThan(2);\r",
+									"});\r",
+									"    "
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/api/account/{{idAccount0}}",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"account",
+								"{{idAccount0}}"
+							]
+						},
+						"description": "Generated from cURL: curl -X GET \"https://demo.testfire.net/api/account/a\" -H \"accept: application/json\" -H \"Authorization: a\""
+					},
+					"response": []
+				},
+				{
+					"name": "transactions",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									"pm.test(\"Response body contains last_10_transactions\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property('last_10_transactions');\r",
+									"});\r",
+									"pm.test(\"Last 10 transactions have correct date format\", function () {\r",
+									"    var transactions = pm.response.json().last_10_transactions;\r",
+									"    transactions.forEach(function (transaction) {\r",
+									"        pm.expect(transaction.date).to.match(/^\\d{4}-\\d{2}-\\d{2}$/);\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/api/account/{{idAccount0}}/transactions",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"account",
+								"{{idAccount0}}",
+								"transactions"
+							]
+						},
+						"description": "Generated from cURL: curl -X GET \"https://demo.testfire.net/api/account/a/transactions\" -H \"accept: application/json\" -H \"Authorization: a\""
+					},
+					"response": []
+				}
+			],
+			"description": "Ce dossier regroupe les appels relatifs à la gestion des comptes utilisateurs ou clients.\n\n### Objectifs :\n\n- Lister tous les comptes disponibles.\n    \n- Récupérer les informations détaillées d’un compte spécifique.\n    \n- Mettre à jour les données d’un compte.\n    \n- Gérer les statuts (actif, suspendu, fermé).\n    \n\n### Variables utilisées :\n\n- `{{idAccount}}` : identifiant unique du compte.\n    \n- `{{baseURL}}` : URL de base de l’API.\n    \n\n### Requêtes typiques :\n\n- `GET /api/account`\n    \n- `GET /api/account/{{idAccount}}`\n    \n- `PUT /api/account/{{idAccount}}`"
+		},
+		{
+			"name": "Transfer",
+			"item": [
+				{
+					"name": "transfer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Transfer successful\", function () {\r",
+									"    pm.expect(pm.response.json().success).to.eql(\"200.0 was successfully transferred from ...\");\r",
+									"});\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \"toAccount\": {{idAccount0}}, \"fromAccount\": {{idAccount0}}, \"transferAmount\": \"200\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/transfer",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"transfer"
+							]
+						},
+						"description": "Generated from cURL: curl -X POST \"https://demo.testfire.net/api/transfer\" -H \"accept: application/json\" -H \"Authorization: a\" -H \"Content-Type: application/json\" -d \"{ \\\"toAccount\\\": \\\"800002\\\", \\\"fromAccount\\\": \\\"800003\\\", \\\"transferAmount\\\": \\\"200\\\"}\""
+					},
+					"response": []
+				}
+			],
+			"description": "## Dossier : Transfers\n\nCe dossier contient les requêtes relatives aux opérations financières et transferts entre comptes.\n\n### Objectifs :\n\n- Initier un virement d’un compte source vers un compte destinataire.\n    \n- Vérifier le solde avant et après transaction.\n    \n- Lister l’historique des transactions.\n    \n\n### Variables utilisées :\n\n- `{{sourceAccountId}}`\n    \n- `{{destinationAccountId}}`\n    \n\n### Requêtes typiques :\n\n- `POST /api/transfer`"
+		},
+		{
+			"name": "Feedback",
+			"item": [
+				{
+					"name": "feedback",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body contains the correct comment\", function () {\r",
+									"    pm.expect(pm.response.json().comments).to.eql(\"I like the new look of your applicaiton\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"J Smith\",\r\n    \"email\": \"jsmtih@altoromutual.com\",\r\n    \"subject\": \"Amazing web design\",\r\n    \"message\": \"I like the new look of your applicaiton\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/feedback/submit",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"feedback",
+								"submit"
+							]
+						},
+						"description": "Generated from cURL: curl -X POST \"https://demo.testfire.net/api/feedback/submit\" -H \"accept: application/json\" -H \"Content-Type: application/json\" -d \"{ \\\"name\\\": \\\"J Smith\\\", \\\"email\\\": \\\"jsmtih@altoromutual.com\\\", \\\"subject\\\": \\\"Amazing web design\\\", \\\"message\\\": \\\"I like the new look of your applicaiton\\\"}\""
+					},
+					"response": []
+				}
+			],
+			"description": "## Dossier : Feedback &\n\nCe dossier contient les requêtes liées aux retours utilisateurs.\n\n### Objectifs :\n\n- Envoyer des feedbacks à propos de l’application.\n    \n- Vérifier la prise en charge des retours.\n    \n\n### Requêtes typiques :\n\n- `POST /api/feedback`"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
