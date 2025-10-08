@@ -1,0 +1,14 @@
+{
+  "name": "postman-tests",
+  "version": "1.0.0",
+  "description": "Postman API tests executed via Newman on GitHub Actions",
+  "scripts": {
+    "test": "newman run collections/E2E.postman_collection.json -e environments/Data.postman_environment.json -r cli,html --reporter-html-export reports/report.html"
+  },
+  "author": "Hedi Bensaid",
+  "license": "MIT",
+  "dependencies": {
+    "newman": "^6.2.1",
+    "newman-reporter-html": "^1.0.0"
+  }
+}

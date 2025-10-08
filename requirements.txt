@@ -1,0 +1,3 @@
+# Tools used in the QA automation pipeline
+newman>=6.2.1
+newman-reporter-html>=1.0.0
