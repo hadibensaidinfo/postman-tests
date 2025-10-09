@@ -1,125 +1,121 @@
-🚀 E2E API Testing Project (Postman + Newman + GitHub Actions)
+# 🧪 Postman E2E Tests
 
-Ce projet contient une suite de tests End-to-End (E2E) automatisés pour valider les API du site Demo TestFire à l’aide de Postman et Newman.
-Il est conçu pour être exécuté en local ou dans un pipeline GitHub Actions avec génération automatique d’un rapport HTML.
+Tests de bout en bout (E2E) automatisés avec **Postman** et exécutés via **Newman** — localement ou dans **GitHub Actions**.
 
-📁 Structure du projet
+---
+
+## 🏗️ Structure du projet
+
+```
 ├── collections/
-│   └── E2E.postman_collection.json      # Collection Postman contenant les requêtes et les tests
+│   └── E2E.postman_collection.json      # Collection Postman contenant les tests E2E
 ├── environments/
-│   └── Data.postman_environment.json    # Variables d’environnement (ex: baseURL)
+│   └── Data.postman_environment.json    # Variables d’environnement (baseURL, token, etc.)
 ├── reports/
 │   └── report.html                      # Rapport HTML généré par Newman
 ├── .github/
 │   └── workflows/
-│       └── newman-tests.yml             # Pipeline GitHub Actions pour exécuter les tests
-├── package.json                         # Dépendances et script npm
-├── README.md                            # Documentation du projet
+│       └── newman-tests.yml             # Workflow GitHub Actions pour exécution CI/CD
+├── package.json                         # Dépendances et scripts npm
+└── README.md                            # Documentation du projet
+```
 
-⚙️ Installation
+---
 
-Cloner le dépôt
+## ⚙️ Installation
 
-git clone https://github.com/<votre-utilisateur>/<votre-repo>.git
-cd <votre-repo>
-
-
-Installer les dépendances
-
+```bash
 npm install
+```
 
-🧪 Exécution des tests en local
+---
 
-Lancer tous les tests avec Newman via NPM :
+## 🚀 Exécution locale
 
-npm test
+```bash
+newman run collections/E2E.postman_collection.json   -e environments/Data.postman_environment.json   -r cli,html --reporter-html-export reports/report.html
+```
 
+📊 Le rapport HTML sera généré ici :
+```
+reports/report.html
+```
 
-Ce script exécute :
+---
 
-newman run collections/E2E.postman_collection.json \
-  -e environments/Data.postman_environment.json \
-  -r cli,html --reporter-html-export reports/report.html
+## 💬 Scripts npm
 
+Pour simplifier les exécutions, tu peux utiliser les scripts suivants définis dans `package.json` :
 
-📊 Le rapport sera généré automatiquement dans le dossier reports/report.html.
-
-🧰 Variables d’environnement
-
-Le fichier Data.postman_environment.json contient les variables globales du projet.
-Exemple :
-
-{
-  "key": "baseURL",
-  "value": "https://demo.testfire.net"
+```json
+  "scripts": {
+  "test": "newman run collections/E2E.postman_collection.json -e environments/Data.postman_environment.json -r cli,html --reporter-html-export reports/report.html; exit 0",
+  "test:local": "newman run collections/E2E.postman_collection.json -e environments/Data.postman_environment.json -r cli,html --reporter-html-export reports/report.html"
 }
+```
 
+- **`npm test`** → Utilisé en CI/CD (continue même si des tests échouent, pour générer le rapport).
+- **`npm run test:ci`** → Exécution locale (échoue si un test échoue).
 
-🟡 Bonne pratique :
+---
 
-Utiliser les variables d’environnement pour les URLs, tokens et identifiants.
-Ne pas stocker d’informations sensibles directement dans la collection.
-🔁 Exécution dans GitHub Actions
+## 💡 Bonnes pratiques
 
-Le pipeline est défini dans .github/workflows/newman-tests.yml.
-Il :
+- 🧩 Utiliser les **environnements Postman** pour gérer les variables dynamiques (`baseURL`, `authToken`, etc.).
+- 🔐 Ne jamais exposer de secrets ou tokens sensibles dans le repo.
+- 📝 Ajouter des **descriptions** claires à chaque dossier et requête dans la collection.
+- 🧱 Séparer les collections par modules (Auth, Users, Transactions…).
+- 🔁 Toujours **réexporter** la collection et l’environnement après chaque modification dans Postman.
+- 🧾 Utiliser `--reporter-html-export` pour générer des rapports clairs et exploitables.
 
-Installe Node.js et Newman
-Exécute les tests Postman
-Génère le rapport HTML
-Publie le rapport comme artefact téléchargeable
+---
 
-Exemple de fichier simplifié :
+## 🤖 Intégration continue – GitHub Actions
 
-name: Newman API Tests
+Fichier : `.github/workflows/newman-tests.yml`
 
-on: [push, pull_request]
+```yaml
+name: Run Postman Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  run-tests:
+  newman-tests:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
       - name: Install dependencies
         run: npm install
 
-      - name: Run Postman tests
+      - name: Run Postman tests with Newman
         run: npm test || true
 
-      - name: Upload Newman HTML Report
+      - name: Upload Newman HTML report
         uses: actions/upload-artifact@v4
         with:
           name: newman-report
           path: reports/report.html
+```
 
+🟢 Le `|| true` dans le script CI garantit que le **rapport est toujours généré**, même en cas d’échec de tests.
 
-🟢 Le pipeline continue même si certains tests échouent (|| true), afin que le rapport soit toujours généré.
+---
 
-📄 Résultats des tests
-Les logs s’affichent dans la console (cli reporter)
-Un rapport détaillé est généré en HTML :
-reports/report.html
+## 👨‍💻 Auteur
 
-
-Pour l’ouvrir :
-
-start reports/report.html      # sous Windows
-open reports/report.html       # sous macOS/Linux
-
-🧠 Bonnes pratiques QA
-
-✅ Utiliser des noms explicites pour les requêtes et dossiers dans Postman.
-✅ Ajouter des descriptions claires à chaque dossier et requête.
-✅ Centraliser les variables dynamiques dans les environnements.
-✅ Intégrer Newman dans la CI/CD pour détecter rapidement les régressions.
-✅ Générer systématiquement un rapport HTML pour les audits.
-
-👤 Auteur
-
-Hedi Bensaid
-QA Engineer | Test Automation | ISTQB & SFPC™ Certified
-🧰 Technologies : Postman, Newman, Playwright, Cypress, Robot Framework
-🌐 LinkedIn | GitHub
+**Hedi Bensaid**  
+QA Engineer | Test Automation | ISTQB® & SFPC™ Certified  
+🧰 Outils : Postman, Newman, Playwright, Cypress, Robot Framework  
+🌐 [LinkedIn](https://www.linkedin.com/in/hedi-bensaid/)
